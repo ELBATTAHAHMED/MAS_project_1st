@@ -18,7 +18,7 @@
     mechanismLabel: document.getElementById("mechanism-label"),
     mechanismMenu: document.getElementById("mechanism-menu"),
     mechanismDesc: document.getElementById("mechanism-desc"),
-    btnToggleSidebar: document.getElementById("btn-toggle-sidebar"),
+    btnSidebarToggle: document.getElementById("btn-sidebar-toggle"),
     speedSlider: document.getElementById("speed-slider"),
     speedValue: document.getElementById("speed-value"),
     statusRunning: document.getElementById("status-running"),
@@ -260,9 +260,6 @@
     setScenarioValue(selectedScenario, { post: false });
     setMechanismValue(selectedMechanism, { post: false });
 
-    if (selectedScenario === "Custom") {
-      elements.customParams.open = true;
-    }
 
     const params = config.active_params || {};
     elements.numRobots.value = params.num_robots ?? 5;
@@ -1045,14 +1042,14 @@
   }
 
   function initSidebarToggle() {
-    if (!elements.appRoot || !elements.btnToggleSidebar) {
+    if (!elements.appRoot || !elements.btnSidebarToggle) {
       return;
     }
     const saved = safeGetItem("sidebar-collapsed");
     const collapsed = saved === "1";
     setSidebarCollapsed(collapsed);
 
-    elements.btnToggleSidebar.addEventListener("click", () => {
+    elements.btnSidebarToggle.addEventListener("click", () => {
       const isCollapsed = elements.appRoot.classList.contains("sidebar-collapsed");
       setSidebarCollapsed(!isCollapsed);
     });
@@ -1061,7 +1058,12 @@
   function setSidebarCollapsed(collapsed) {
     elements.appRoot.classList.toggle("sidebar-collapsed", collapsed);
     safeSetItem("sidebar-collapsed", collapsed ? "1" : "0");
-    elements.btnToggleSidebar.textContent = collapsed ? "Open Controls" : "Close Controls";
+    if (elements.btnSidebarToggle) {
+      const label = collapsed ? "Expand sidebar" : "Collapse sidebar";
+      elements.btnSidebarToggle.setAttribute("aria-label", label);
+      elements.btnSidebarToggle.setAttribute("aria-expanded", collapsed ? "false" : "true");
+      elements.btnSidebarToggle.setAttribute("title", label);
+    }
   }
 
   function safeGetItem(key) {

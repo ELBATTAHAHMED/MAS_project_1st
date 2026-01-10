@@ -16,8 +16,14 @@
 <body>
   <div class="app" id="app-root">
     <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-title">Control Center</div>
+        <button id="btn-sidebar-toggle" class="sidebar-toggle" type="button" aria-label="Collapse sidebar" aria-expanded="true" title="Collapse sidebar">
+          <span class="sidebar-toggle-icon" aria-hidden="true"></span>
+        </button>
+      </div>
 
-      <div class="section-header section-header-main">Configuration</div>
+      <div class="sidebar-content" id="sidebar-content">
       <div class="section-header">Scenario Preset</div>
       <div class="select-wrap select-wrap-scenario" id="scenario-select-wrap">
         <div class="mechanism-dropdown" id="scenario-dropdown">
@@ -136,19 +142,20 @@
       </div>
 
       <div class="button-row">
-        <button id="btn-reset" class="button">Reset</button>
-        <button id="btn-step" class="button">Step</button>
+        <button id="btn-reset" class="button control-button">Reset</button>
+        <button id="btn-step" class="button control-button">Step</button>
       </div>
       <div class="button-row">
-        <button id="btn-play" class="button button-primary">Play</button>
-        <button id="btn-pause" class="button button-primary">Pause</button>
+        <button id="btn-play" class="button control-button control-button-play">Play</button>
+        <button id="btn-pause" class="button control-button control-button-pause">Pause</button>
       </div>
 
       <div class="panel status-panel">
-        <div class="status-row"><span class="status-label">Status</span><span id="status-running">Paused</span></div>
-        <div class="status-row"><span class="status-label">Simulation</span><span id="status-simulation">Active</span></div>
-        <div class="status-row"><span class="status-label">Progress</span><span id="status-progress">0 steps @ 5x</span></div>
-        <div class="status-row"><span class="status-label">Orders</span><span id="status-orders">0 pending | 0 assigned | 0 completed</span></div>
+        <div class="status-row"><span class="status-label">Status</span><span id="status-running" class="status-value">Paused</span></div>
+        <div class="status-row"><span class="status-label">Simulation</span><span id="status-simulation" class="status-value">Active</span></div>
+        <div class="status-row"><span class="status-label">Progress</span><span id="status-progress" class="status-value">0 steps @ 5x</span></div>
+        <div class="status-row"><span class="status-label">Orders</span><span id="status-orders" class="status-value">0 pending | 0 assigned | 0 completed</span></div>
+      </div>
       </div>
     </aside>
 
@@ -157,9 +164,6 @@
         <div class="topbar-title">
           <h1 class="panel-title">Multi-Robot Delivery Coordination</h1>
           <p class="panel-subtitle">Interactive Mesa simulation with real-time visualization</p>
-        </div>
-        <div class="topbar-actions">
-          <button id="btn-toggle-sidebar" class="button button-ghost">Close Controls</button>
         </div>
       </header>
       <section class="panel action-panel">

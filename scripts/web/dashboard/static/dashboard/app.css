@@ -46,6 +46,70 @@ body {
   overflow-y: auto;
   transition: width 0.25s ease, transform 0.25s ease, padding 0.25s ease;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding-bottom: 0.65rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.sidebar-title {
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.sidebar-toggle {
+  width: 34px;
+  height: 34px;
+  border-radius: 0.6rem;
+  border: 1px solid var(--border-light);
+  background: #ffffff;
+  color: var(--text-secondary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, color 0.2s ease;
+}
+
+.sidebar-toggle:hover {
+  border-color: var(--border-color);
+  box-shadow: var(--shadow-soft);
+  color: var(--text-primary);
+}
+
+.sidebar-toggle:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--ring);
+}
+
+.sidebar-toggle-icon {
+  width: 9px;
+  height: 9px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(135deg);
+  transition: transform 0.2s ease;
+}
+
+.sidebar-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  flex: 1;
+  min-height: 0;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  padding-bottom: 1.25rem;
 }
 
 .main {
@@ -55,17 +119,39 @@ body {
 }
 
 .app.sidebar-collapsed .sidebar {
-  width: 0;
-  padding: 0;
-  border-right: none;
-  transform: translateX(-100%);
+  width: 64px;
+  padding: 1rem 0.6rem;
+  transform: translateX(0);
   overflow: hidden;
-  pointer-events: none;
-  flex: 0 0 0;
+  flex: 0 0 auto;
+  gap: 0;
 }
 
 .app.sidebar-collapsed .main {
   padding: 1.5rem 2.5rem 2.5rem;
+}
+
+.app.sidebar-collapsed .sidebar-header {
+  justify-content: center;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.app.sidebar-collapsed .sidebar-title {
+  display: none;
+}
+
+.app.sidebar-collapsed .sidebar-toggle-icon {
+  transform: rotate(-45deg);
+}
+
+.app.sidebar-collapsed .sidebar-content {
+  opacity: 0;
+  pointer-events: none;
+  height: 0;
+  overflow: hidden;
+  flex: 0 0 auto;
+  transform: translateX(-8px);
 }
 
 .panel {
@@ -597,6 +683,45 @@ select.ui-select::-ms-expand {
   transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
+.control-button {
+  min-width: 96px;
+  height: 36px;
+  padding: 0 0.95rem;
+  border-radius: 999px;
+  font-size: 0.84rem;
+  letter-spacing: 0.03em;
+  background: linear-gradient(180deg, #ffffff 0%, #eef2f7 100%);
+  border: 1px solid var(--border-light);
+  color: var(--text-primary);
+  box-shadow: 0 6px 14px rgba(15, 23, 42, 0.12);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+
+.control-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(15, 23, 42, 0.16);
+  border-color: var(--border-color);
+}
+
+.control-button:active {
+  transform: translateY(0);
+  box-shadow: 0 5px 12px rgba(15, 23, 42, 0.12);
+}
+
+.control-button-play {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--success) 100%);
+  border: none;
+  color: #ffffff;
+  box-shadow: 0 10px 20px rgba(22, 163, 74, 0.28);
+}
+
+.control-button-pause {
+  background: linear-gradient(135deg, var(--danger) 0%, var(--accent) 100%);
+  border: none;
+  color: #ffffff;
+  box-shadow: 0 10px 20px rgba(249, 115, 22, 0.28);
+}
+
 .button:hover {
   border-color: var(--border-color);
   box-shadow: var(--shadow-soft);
@@ -636,6 +761,7 @@ select.ui-select::-ms-expand {
   font-size: 0.85rem;
   color: var(--text-secondary);
   padding: 0.2rem 0;
+  gap: 0.75rem;
 }
 
 .status-label {
@@ -644,6 +770,13 @@ select.ui-select::-ms-expand {
   text-transform: uppercase;
   letter-spacing: 0.08em;
   font-size: 0.7rem;
+}
+
+.status-value {
+  text-align: right;
+  color: var(--text-primary);
+  font-weight: 600;
+  max-width: 70%;
 }
 
 .action-panel {
@@ -1062,7 +1195,8 @@ select.ui-select::-ms-expand {
   }
 
   .app.sidebar-collapsed .sidebar {
-    display: none;
+    width: 100%;
+    padding: 0.75rem 0.8rem;
   }
 
   .app.sidebar-collapsed .main {
