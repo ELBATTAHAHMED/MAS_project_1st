@@ -5,8 +5,18 @@
 
   const elements = {
     appRoot: document.getElementById("app-root"),
+    scenarioSelectWrap: document.getElementById("scenario-select-wrap"),
     scenarioSelect: document.getElementById("scenario-select"),
+    scenarioDropdown: document.getElementById("scenario-dropdown"),
+    scenarioTrigger: document.getElementById("scenario-trigger"),
+    scenarioLabel: document.getElementById("scenario-label"),
+    scenarioMenu: document.getElementById("scenario-menu"),
+    mechanismSelectWrap: document.getElementById("mechanism-select-wrap"),
     mechanismSelect: document.getElementById("mechanism-select"),
+    mechanismDropdown: document.getElementById("mechanism-dropdown"),
+    mechanismTrigger: document.getElementById("mechanism-trigger"),
+    mechanismLabel: document.getElementById("mechanism-label"),
+    mechanismMenu: document.getElementById("mechanism-menu"),
     mechanismDesc: document.getElementById("mechanism-desc"),
     btnToggleSidebar: document.getElementById("btn-toggle-sidebar"),
     speedSlider: document.getElementById("speed-slider"),
@@ -93,6 +103,135 @@
     });
   }
 
+  function ensureScenarioMenu() {
+    if (!elements.scenarioMenu || elements.scenarioMenu.children.length > 0) {
+      return;
+    }
+    scenarioList.forEach((item) => {
+      const option = document.createElement("li");
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "mechanism-option";
+      button.dataset.value = item;
+      button.setAttribute("role", "option");
+      button.textContent = item;
+      option.appendChild(button);
+      elements.scenarioMenu.appendChild(option);
+    });
+  }
+
+  function ensureMechanismMenu() {
+    if (!elements.mechanismMenu || elements.mechanismMenu.children.length > 0) {
+      return;
+    }
+    mechanismList.forEach((item) => {
+      const value = typeof item === "string" ? item : item.value;
+      const label = typeof item === "string" ? item : item.label;
+      const option = document.createElement("li");
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "mechanism-option";
+      button.dataset.value = value;
+      button.setAttribute("role", "option");
+      button.textContent = label;
+      option.appendChild(button);
+      elements.mechanismMenu.appendChild(option);
+    });
+  }
+
+  function getMechanismValue(item) {
+    return typeof item === "string" ? item : item?.value;
+  }
+
+  function updateScenarioSelection(value) {
+    if (!elements.scenarioMenu) {
+      return;
+    }
+    elements.scenarioMenu.querySelectorAll(".mechanism-option").forEach((button) => {
+      const isSelected = button.dataset.value === value;
+      button.classList.toggle("is-selected", isSelected);
+      button.setAttribute("aria-selected", isSelected ? "true" : "false");
+    });
+  }
+
+  function updateMechanismSelection(value) {
+    if (!elements.mechanismMenu) {
+      return;
+    }
+    elements.mechanismMenu.querySelectorAll(".mechanism-option").forEach((button) => {
+      const isSelected = button.dataset.value === value;
+      button.classList.toggle("is-selected", isSelected);
+      button.setAttribute("aria-selected", isSelected ? "true" : "false");
+    });
+  }
+
+  function setMechanismValue(value, { post } = {}) {
+    if (!value) {
+      return;
+    }
+    elements.mechanismSelect.value = value;
+    const mech = mechanismList.find((item) => (typeof item === "string" ? item === value : item.value === value));
+    const label = typeof mech === "string" ? mech : mech?.label;
+    if (elements.mechanismLabel) {
+      elements.mechanismLabel.textContent = label || value;
+    }
+    if (elements.mechanismDesc) {
+      elements.mechanismDesc.textContent = mech && typeof mech !== "string" ? mech.description : "Select a mechanism";
+    }
+    updateMechanismSelection(value);
+    if (post) {
+      postJson("/api/config", { mechanism: value }).then(applyState);
+    }
+  }
+
+  function setScenarioValue(value, { post } = {}) {
+    if (!value) {
+      return;
+    }
+    elements.scenarioSelect.value = value;
+    if (elements.scenarioLabel) {
+      elements.scenarioLabel.textContent = value;
+    }
+    updateScenarioSelection(value);
+    if (post) {
+      postJson("/api/config", { scenario: value }).then(applyState);
+    }
+  }
+
+  function setMechanismMenuOpen(open) {
+    if (!elements.mechanismDropdown || !elements.mechanismTrigger) {
+      return;
+    }
+    elements.mechanismDropdown.classList.toggle("is-open", open);
+    if (elements.mechanismSelectWrap) {
+      elements.mechanismSelectWrap.classList.toggle("is-open", open);
+    }
+    elements.mechanismTrigger.setAttribute("aria-expanded", open ? "true" : "false");
+    if (open && elements.mechanismMenu) {
+      const active = elements.mechanismMenu.querySelector(".mechanism-option.is-selected");
+      if (active) {
+        active.scrollIntoView({ block: "nearest" });
+      }
+    }
+  }
+
+  function setScenarioMenuOpen(open) {
+    if (!elements.scenarioDropdown || !elements.scenarioTrigger) {
+      return;
+    }
+    elements.scenarioDropdown.classList.toggle("is-open", open);
+    if (elements.scenarioSelectWrap) {
+      elements.scenarioSelectWrap.classList.toggle("is-open", open);
+    }
+    elements.scenarioTrigger.setAttribute("aria-expanded", open ? "true" : "false");
+    if (open && elements.scenarioMenu) {
+      const active = elements.scenarioMenu.querySelector(".mechanism-option.is-selected");
+      if (active) {
+        active.scrollIntoView({ block: "nearest" });
+      }
+    }
+  }
+
   function applyState(data) {
     if (!data) {
       return;
@@ -112,15 +251,14 @@
   function updateConfig(config) {
     ensureOptions(elements.scenarioSelect, scenarioList);
     ensureOptions(elements.mechanismSelect, mechanismList, (item) => item.label);
+    ensureScenarioMenu();
+    ensureMechanismMenu();
 
     const selectedScenario = config.selected_scenario || scenarioList[0];
-    const selectedMechanism = config.mechanism || mechanismList[0]?.value;
+    const selectedMechanism = config.mechanism || getMechanismValue(mechanismList[0]);
 
-    elements.scenarioSelect.value = selectedScenario;
-    elements.mechanismSelect.value = selectedMechanism;
-
-    const mech = mechanismList.find((item) => item.value === selectedMechanism);
-    elements.mechanismDesc.textContent = mech ? mech.description : "Select a mechanism";
+    setScenarioValue(selectedScenario, { post: false });
+    setMechanismValue(selectedMechanism, { post: false });
 
     if (selectedScenario === "Custom") {
       elements.customParams.open = true;
@@ -760,12 +898,72 @@
   function bindControls() {
     initSidebarToggle();
 
-    elements.scenarioSelect.addEventListener("change", () => {
-      postJson("/api/config", { scenario: elements.scenarioSelect.value }).then(applyState);
+    if (elements.scenarioTrigger && elements.scenarioMenu && elements.scenarioDropdown) {
+      elements.scenarioTrigger.addEventListener("click", () => {
+        const isOpen = elements.scenarioDropdown.classList.contains("is-open");
+        setScenarioMenuOpen(!isOpen);
+      });
+
+      elements.scenarioTrigger.addEventListener("keydown", (event) => {
+        if (event.key === "ArrowDown" || event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          setScenarioMenuOpen(true);
+        }
+      });
+
+      elements.scenarioMenu.addEventListener("click", (event) => {
+        const button = event.target.closest(".mechanism-option");
+        if (!button) {
+          return;
+        }
+        const value = button.dataset.value;
+        setScenarioMenuOpen(false);
+        setScenarioValue(value, { post: true });
+      });
+    } else {
+      elements.scenarioSelect.addEventListener("change", () => {
+        postJson("/api/config", { scenario: elements.scenarioSelect.value }).then(applyState);
+      });
+    }
+
+    if (elements.mechanismTrigger && elements.mechanismMenu && elements.mechanismDropdown) {
+      elements.mechanismTrigger.addEventListener("click", () => {
+        const isOpen = elements.mechanismDropdown.classList.contains("is-open");
+        setMechanismMenuOpen(!isOpen);
+      });
+
+      elements.mechanismTrigger.addEventListener("keydown", (event) => {
+        if (event.key === "ArrowDown" || event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          setMechanismMenuOpen(true);
+        }
+      });
+
+      elements.mechanismMenu.addEventListener("click", (event) => {
+        const button = event.target.closest(".mechanism-option");
+        if (!button) {
+          return;
+        }
+        const value = button.dataset.value;
+        setMechanismMenuOpen(false);
+        setMechanismValue(value, { post: true });
+      });
+    }
+
+    document.addEventListener("click", (event) => {
+      if (elements.scenarioDropdown && !elements.scenarioDropdown.contains(event.target)) {
+        setScenarioMenuOpen(false);
+      }
+      if (elements.mechanismDropdown && !elements.mechanismDropdown.contains(event.target)) {
+        setMechanismMenuOpen(false);
+      }
     });
 
-    elements.mechanismSelect.addEventListener("change", () => {
-      postJson("/api/config", { mechanism: elements.mechanismSelect.value }).then(applyState);
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        setScenarioMenuOpen(false);
+        setMechanismMenuOpen(false);
+      }
     });
 
     elements.speedSlider.addEventListener("input", () => {

@@ -19,14 +19,26 @@
 
       <div class="section-header section-header-main">Configuration</div>
       <div class="section-header">Scenario Preset</div>
-      <div class="select-wrap">
-        <select id="scenario-select" class="control ui-select"></select>
+      <div class="select-wrap select-wrap-scenario" id="scenario-select-wrap">
+        <div class="mechanism-dropdown" id="scenario-dropdown">
+          <button type="button" class="mechanism-trigger" id="scenario-trigger" aria-haspopup="listbox" aria-expanded="false">
+            <span class="mechanism-label" id="scenario-label">Select a scenario</span>
+          </button>
+          <ul class="mechanism-menu" id="scenario-menu" role="listbox" tabindex="-1"></ul>
+          <select id="scenario-select" class="control ui-select mechanism-native" tabindex="-1" aria-hidden="true"></select>
+        </div>
       </div>
 
       <div class="section-header">Coordination Mechanism</div>
       <div class="control-row">
-        <div class="select-wrap">
-          <select id="mechanism-select" class="control ui-select"></select>
+        <div class="select-wrap select-wrap-mechanism" id="mechanism-select-wrap">
+          <div class="mechanism-dropdown" id="mechanism-dropdown">
+            <button type="button" class="mechanism-trigger" id="mechanism-trigger" aria-haspopup="listbox" aria-expanded="false">
+              <span class="mechanism-label" id="mechanism-label">Select a mechanism</span>
+            </button>
+            <ul class="mechanism-menu" id="mechanism-menu" role="listbox" tabindex="-1"></ul>
+            <select id="mechanism-select" class="control ui-select mechanism-native" tabindex="-1" aria-hidden="true"></select>
+          </div>
         </div>
         <div id="mechanism-desc" class="inline-note">Select a mechanism</div>
       </div>
