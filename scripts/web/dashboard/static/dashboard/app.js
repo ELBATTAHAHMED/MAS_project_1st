@@ -55,6 +55,10 @@
     maxSteps: document.getElementById("max-steps"),
     maxStepsValue: document.getElementById("max-steps-value"),
     orderMode: document.getElementById("order-mode"),
+    orderModeDropdown: document.getElementById("order-mode-dropdown"),
+    orderModeTrigger: document.getElementById("order-mode-trigger"),
+    orderModeLabel: document.getElementById("order-mode-label"),
+    orderModeMenu: document.getElementById("order-mode-menu"),
     orderCountRow: document.getElementById("order-count-row"),
     orderCount: document.getElementById("order-count"),
     orderCountValue: document.getElementById("order-count-value"),
@@ -139,6 +143,23 @@
     });
   }
 
+  function ensureOrderModeMenu() {
+    if (!elements.orderModeMenu || elements.orderModeMenu.children.length > 0) {
+      return;
+    }
+    Array.from(elements.orderMode.options).forEach((optionEl) => {
+      const option = document.createElement("li");
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "mechanism-option";
+      button.dataset.value = optionEl.value;
+      button.setAttribute("role", "option");
+      button.textContent = optionEl.textContent;
+      option.appendChild(button);
+      elements.orderModeMenu.appendChild(option);
+    });
+  }
+
   function getMechanismValue(item) {
     return typeof item === "string" ? item : item?.value;
   }
@@ -163,6 +184,29 @@
       button.classList.toggle("is-selected", isSelected);
       button.setAttribute("aria-selected", isSelected ? "true" : "false");
     });
+  }
+
+  function updateOrderModeSelection(value) {
+    if (!elements.orderModeMenu) {
+      return;
+    }
+    elements.orderModeMenu.querySelectorAll(".mechanism-option").forEach((button) => {
+      const isSelected = button.dataset.value === value;
+      button.classList.toggle("is-selected", isSelected);
+      button.setAttribute("aria-selected", isSelected ? "true" : "false");
+    });
+  }
+
+  function setOrderModeValue(value) {
+    if (!value) {
+      return;
+    }
+    elements.orderMode.value = value;
+    const option = Array.from(elements.orderMode.options).find((opt) => opt.value === value);
+    if (elements.orderModeLabel) {
+      elements.orderModeLabel.textContent = option ? option.textContent : value;
+    }
+    updateOrderModeSelection(value);
   }
 
   function setMechanismValue(value, { post } = {}) {
@@ -232,6 +276,24 @@
     }
   }
 
+  function setOrderModeMenuOpen(open) {
+    if (!elements.orderModeDropdown || !elements.orderModeTrigger) {
+      return;
+    }
+    elements.orderModeDropdown.classList.toggle("is-open", open);
+    const orderModeWrap = elements.orderModeDropdown.closest(".order-mode-wrap");
+    if (orderModeWrap) {
+      orderModeWrap.classList.toggle("is-open", open);
+    }
+    elements.orderModeTrigger.setAttribute("aria-expanded", open ? "true" : "false");
+    if (open && elements.orderModeMenu) {
+      const active = elements.orderModeMenu.querySelector(".mechanism-option.is-selected");
+      if (active) {
+        active.scrollIntoView({ block: "nearest" });
+      }
+    }
+  }
+
   function applyState(data) {
     if (!data) {
       return;
@@ -253,6 +315,7 @@
     ensureOptions(elements.mechanismSelect, mechanismList, (item) => item.label);
     ensureScenarioMenu();
     ensureMechanismMenu();
+    ensureOrderModeMenu();
 
     const selectedScenario = config.selected_scenario || scenarioList[0];
     const selectedMechanism = config.mechanism || getMechanismValue(mechanismList[0]);
@@ -271,7 +334,7 @@
     elements.maxSteps.value = params.max_steps ?? 200;
     elements.maxStepsValue.textContent = elements.maxSteps.value;
 
-    elements.orderMode.value = params.order_mode || "fixed_orders";
+    setOrderModeValue(params.order_mode || "fixed_orders");
     updateOrderMode();
 
     elements.orderCount.value = params.order_count ?? 20;
@@ -947,6 +1010,31 @@
       });
     }
 
+    if (elements.orderModeTrigger && elements.orderModeMenu && elements.orderModeDropdown) {
+      elements.orderModeTrigger.addEventListener("click", () => {
+        const isOpen = elements.orderModeDropdown.classList.contains("is-open");
+        setOrderModeMenuOpen(!isOpen);
+      });
+
+      elements.orderModeTrigger.addEventListener("keydown", (event) => {
+        if (event.key === "ArrowDown" || event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          setOrderModeMenuOpen(true);
+        }
+      });
+
+      elements.orderModeMenu.addEventListener("click", (event) => {
+        const button = event.target.closest(".mechanism-option");
+        if (!button) {
+          return;
+        }
+        const value = button.dataset.value;
+        setOrderModeMenuOpen(false);
+        setOrderModeValue(value);
+        postJson("/api/config", { params: collectParams() }).then(applyState);
+      });
+    }
+
     document.addEventListener("click", (event) => {
       if (elements.scenarioDropdown && !elements.scenarioDropdown.contains(event.target)) {
         setScenarioMenuOpen(false);
@@ -954,12 +1042,16 @@
       if (elements.mechanismDropdown && !elements.mechanismDropdown.contains(event.target)) {
         setMechanismMenuOpen(false);
       }
+      if (elements.orderModeDropdown && !elements.orderModeDropdown.contains(event.target)) {
+        setOrderModeMenuOpen(false);
+      }
     });
 
     document.addEventListener("keydown", (event) => {
       if (event.key === "Escape") {
         setScenarioMenuOpen(false);
         setMechanismMenuOpen(false);
+        setOrderModeMenuOpen(false);
       }
     });
 

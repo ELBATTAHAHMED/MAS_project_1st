@@ -76,11 +76,17 @@
           <div class="section-header">Order Generation</div>
           <div class="form-row">
             <label>Order Mode</label>
-            <div class="select-shell select-shell-order">
-              <select id="order-mode" class="control control-select">
-                <option value="fixed_orders">Fixed Orders</option>
-                <option value="probabilistic">Probabilistic</option>
-              </select>
+            <div class="select-wrap select-wrap-scenario order-mode-wrap">
+              <div class="mechanism-dropdown" id="order-mode-dropdown">
+                <button type="button" class="mechanism-trigger" id="order-mode-trigger" aria-haspopup="listbox" aria-expanded="false">
+                  <span class="mechanism-label" id="order-mode-label">Fixed Orders</span>
+                </button>
+                <ul class="mechanism-menu" id="order-mode-menu" role="listbox" tabindex="-1"></ul>
+                <select id="order-mode" class="control control-select mechanism-native" tabindex="-1" aria-hidden="true">
+                  <option value="fixed_orders">Fixed Orders</option>
+                  <option value="probabilistic">Probabilistic</option>
+                </select>
+              </div>
             </div>
           </div>
           <div class="form-row" id="order-count-row">
@@ -146,7 +152,7 @@
         <button id="btn-step" class="button control-button">Step</button>
       </div>
       <div class="button-row">
-        <button id="btn-play" class="button control-button control-button-play">Play</button>
+        <button id="btn-play" class="button control-button control-button-play" type="button">Play</button>
         <button id="btn-pause" class="button control-button control-button-pause">Pause</button>
       </div>
 
