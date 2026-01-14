@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from pathlib import Path
 
-OUTPUT_DIR = Path(__file__).resolve().parent.parent / "results"
+OUTPUT_DIR = Path(__file__).resolve().parent / "results"
 
 
 def run_single_simulation(
