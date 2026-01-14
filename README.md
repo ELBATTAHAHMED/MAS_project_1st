@@ -1,0 +1,148 @@
+# Multi-Robot Delivery Coordination System
+A Mesa-based warehouse simulation with a Django dashboard for live control, visualization, and exports.
+
+## Project Overview
+This project simulates a warehouse where multiple robots pick items from shelves and deliver them to packing stations. The simulation compares three coordination mechanisms (CNP, Greedy, Centralized), tracks performance metrics, and provides both a CLI runner and a web dashboard for interactive exploration.
+
+## System Architecture
+- **WarehouseModel (Mesa)**: owns the grid, order generation, metrics collection, and simulation loop.
+- **RobotAgent**: navigates the grid, manages battery state, picks orders, and completes deliveries.
+- **OrderManagerAgent**: announces and assigns orders for CNP and Centralized modes.
+- **ShelfAgent / PackingStationAgent**: static grid objects that define pickup and delivery locations.
+- **Django dashboard**: per-session in-memory state, REST endpoints, and a front-end UI.
+
+## Coordination Mechanisms
+- **Contract Net Protocol (CNP)**: manager announces unassigned orders every 2 steps; idle robots with sufficient battery bid; lowest bid wins.
+- **Greedy**: each idle robot selects the nearest unassigned order on its own.
+- **Centralized**: manager computes a cost for each idle robot and assigns the lowest-cost robot.
+
+## Simulation Lifecycle
+1. Generate orders (fixed count or probabilistic).
+2. Assign tasks based on the selected mechanism.
+3. Move robots toward pickup and then delivery targets.
+4. Update battery, conflicts, and completion status.
+5. Collect metrics and repeat until `max_steps` is reached.
+
+## Key Features
+- Multiple coordination strategies with the same environment.
+- Configurable order generation (fixed or probabilistic).
+- Battery management with recharge state.
+- Conflict and hard-block metrics from movement contention.
+- CLI experiments with CSV/PNG outputs.
+- Web dashboard with live grid, metrics, and exports.
+
+## Project Structure
+```
+.
+├─ README.md
+├─ requirements.txt
+├─ .gitignore
+└─ scripts/
+   ├─ agents.py
+   ├─ model.py
+   ├─ run.py
+   ├─ requirements.txt
+   └─ web/
+      ├─ manage.py
+      ├─ web/
+      │  ├─ settings.py
+      │  ├─ urls.py
+      │  ├─ asgi.py
+      │  └─ wsgi.py
+      └─ dashboard/
+         ├─ apps.py
+         ├─ urls.py
+         ├─ views.py
+         ├─ state.py
+         ├─ templates/
+         │  └─ dashboard/
+         │     └─ index.html
+         └─ static/
+            └─ dashboard/
+               ├─ app.css
+               └─ app.js
+```
+
+## Technologies Used
+- **Python**
+- **Mesa**
+- **Django**
+- **Pandas**
+- **Matplotlib**
+- **HTML/CSS/JavaScript**
+
+## Getting Started
+
+### Virtual Environment Setup
+Windows (PowerShell or CMD):
+```powershell
+py -3 -m venv .venv
+```
+Activate (PowerShell):
+```powershell
+.\.venv\Scripts\Activate.ps1
+```
+Activate (CMD):
+```cmd
+.\.venv\Scripts\activate.bat
+```
+PowerShell execution policy fix (if needed):
+```powershell
+Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
+```
+
+Linux/macOS (bash/zsh):
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
+
+### Dependency Installation
+```bash
+pip install -r requirements.txt
+```
+
+## Running the Project
+
+### CLI Simulation
+Runs the full scenario suite and exports CSV/PNG outputs.
+```powershell
+py -3 scripts\run.py
+```
+```bash
+python3 scripts/run.py
+```
+
+### Web Dashboard
+Starts a local Django server with the interactive UI.
+```powershell
+py -3 scripts\web\manage.py runserver
+```
+```bash
+python3 scripts/web/manage.py runserver
+```
+Open `http://127.0.0.1:8000/`.
+
+## Outputs & Metrics
+- **CLI outputs**:
+  - `model_*.csv` and `agent_*.csv` for each scenario/mechanism.
+  - `summary_scenarios_mechanisms.csv`.
+  - `warehouse_<scenario>.png` charts in the working directory.
+- **Dashboard exports**:
+  - Metrics JSON.
+  - Model/agent CSVs.
+  - Batch and suite summary downloads.
+
+Metrics tracked include throughput, total distance, battery, conflicts, hard blocks, idle time, and completion delay.
+
+## Limitations & Notes
+- The simulation stops at `max_steps` even if orders remain.
+- Recharge happens in place; robots do not route to charging stations.
+- Collision checks only consider other robots, not shelves.
+- Results are nondeterministic due to random initialization and scheduling.
+- Dashboard state is stored in memory and resets on server restart.
+
+## Authors
+
+- **EL BATTAH Ahmed**
+- **EL ALOUI Oumaima**
