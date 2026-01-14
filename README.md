@@ -1,12 +1,10 @@
 # Multi-Robot Delivery Coordination System
-**Tagline** — A Mesa-based warehouse simulation with a Django dashboard for live control, visualization, and exports.
+A Mesa-based warehouse simulation with a Django dashboard for live control, visualization, and exports.
 
 ## Project Overview
-**Overview** — This project simulates a warehouse where multiple robots pick items from shelves and deliver them to packing stations.
-**Comparison Focus** — The simulation compares three coordination mechanisms (CNP, Greedy, Centralized), tracks performance metrics, and provides both a CLI runner and a web dashboard for interactive exploration.
+This project simulates a warehouse where multiple robots pick items from shelves and deliver them to packing stations. The simulation compares three coordination mechanisms (CNP, Greedy, Centralized), tracks performance metrics, and provides both a CLI runner and a web dashboard for interactive exploration.
 
 ## System Architecture
-**Components** — The system is composed of agents, a model orchestrator, and a web UI:
 - **WarehouseModel (Mesa)**: owns the grid, order generation, metrics collection, and simulation loop.
 - **RobotAgent**: navigates the grid, manages battery state, picks orders, and completes deliveries.
 - **OrderManagerAgent**: announces and assigns orders for CNP and Centralized modes.
@@ -14,23 +12,20 @@
 - **Django dashboard**: per-session in-memory state, REST endpoints, and a front-end UI.
 
 ## Coordination Mechanisms
-**Strategies** — Each mechanism is implemented as a separate assignment policy:
 - **Contract Net Protocol (CNP)**: manager announces unassigned orders every 2 steps; idle robots with sufficient battery bid; lowest bid wins.
 - **Greedy**: each idle robot selects the nearest unassigned order on its own.
 - **Centralized**: manager computes a cost for each idle robot and assigns the lowest-cost robot.
 
 ## Simulation Lifecycle
-**Step Loop** — Each simulation tick executes the following sequence:
 1. Generate orders (fixed count or probabilistic).
 2. Assign tasks based on the selected mechanism.
 3. Move robots toward pickup and then delivery targets.
 4. Update battery, conflicts, and completion status.
 5. Collect metrics and repeat until `max_steps` is reached.
 
-**Collision Handling** — Movement avoids occupied cells, and repeated blockages increment conflict and hard-block counters.
+Collision handling is integrated into the movement step (robots avoid occupied cells), and repeated blockages increment conflict and hard-block counters.
 
 ### Test Scenarios
-**Scenario Set** — The following presets are defined in code:
 - **Light Load**: fixed orders, 5 robots, 20x20 grid, 200 steps, 10 orders.
 - **Medium Load**: fixed orders, 5 robots, 20x20 grid, 200 steps, 30 orders.
 - **Heavy Load**: fixed orders, 5 robots, 20x20 grid, 200 steps, 50 orders.
@@ -40,10 +35,9 @@
 - **Congestion Test**: fixed orders, 20 robots, 8x8 grid, 250 steps, 80 orders clustered around (3,3) with radius 1.
 - **Custom (dashboard only)**: adjustable parameters via the UI.
 
-**Fair Comparison** — The same scenarios are run across all coordination mechanisms to provide a controlled comparison.
+The same scenarios are run across all coordination mechanisms to provide a controlled comparison.
 
 ## Key Features
-**Highlights** — Core capabilities provided by the simulation and UI:
 - Multiple coordination strategies with the same environment.
 - Configurable order generation (fixed or probabilistic).
 - Battery management with recharge state.
@@ -52,7 +46,7 @@
 - Web dashboard with live grid, metrics, and exports.
 
 ## Project Structure
-**Layout** — Core files and directories:
+Core files and directories:
 ```
 .
 ├─ README.md
@@ -85,7 +79,6 @@
 ```
 
 ## Technologies Used
-**Stack** — Libraries and tooling used in the implementation:
 - **Python**
 - **Mesa**
 - **Django**
@@ -94,42 +87,42 @@
 - **HTML/CSS/JavaScript**
 
 ## Getting Started
-**Prerequisites** — Python and `pip` are required on your system.
+Python and `pip` are required on your system.
 
 ### Virtual Environment Setup
-**Windows (PowerShell or CMD)** — Create a virtual environment:
+Windows (PowerShell or CMD):
 ```powershell
 py -m venv .venv
 ```
-**Activate (PowerShell)** — Enable the environment:
+Activate (PowerShell):
 ```powershell
 .\.venv\Scripts\Activate.ps1
 ```
-**Activate (CMD)** — Enable the environment:
+Activate (CMD):
 ```cmd
 .\.venv\Scripts\activate.bat
 ```
-**PowerShell Policy Fix** — Apply if activation is blocked:
+PowerShell execution policy fix (if needed):
 ```powershell
 Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
 ```
-**Linux/macOS (bash/zsh)** — Create and activate:
+
+Linux/macOS (bash/zsh):
 ```bash
 python -m venv .venv
 source .venv/bin/activate
 ```
 
 ### Dependency Installation
-**Install Dependencies** — Install project requirements:
 ```bash
 pip install -r requirements.txt
 ```
 
 ## Running the Project
-**Entry Points** — Use the CLI for batch runs or the dashboard for interactive control.
+Use the CLI for batch runs or the dashboard for interactive control.
 
 ### CLI Simulation
-**CLI Runner** — Runs the full scenario suite and exports CSV/PNG outputs:
+Runs the full scenario suite and exports CSV/PNG outputs.
 ```powershell
 py scripts\run.py
 ```
@@ -138,17 +131,16 @@ python scripts/run.py
 ```
 
 ### Web Dashboard
-**Dashboard Server** — Starts a local Django server with the interactive UI:
+Starts a local Django server with the interactive UI.
 ```powershell
 py scripts\web\manage.py runserver
 ```
 ```bash
 python scripts/web/manage.py runserver
 ```
-**Open Browser** — Visit `http://127.0.0.1:8000/`.
+Open `http://127.0.0.1:8000/`.
 
 ## Outputs & Metrics
-**Exports** — Output artifacts produced by CLI and dashboard runs:
 - **CLI outputs**:
   - `model_*.csv` and `agent_*.csv` for each scenario/mechanism (saved under `scripts/results/`).
   - `summary_scenarios_mechanisms.csv` (saved under `scripts/results/`).
@@ -158,12 +150,11 @@ python scripts/web/manage.py runserver
   - Model/agent CSVs.
   - Batch and suite summary downloads.
 
-**Comparison Use** — Collected metrics are used to quantitatively compare coordination mechanisms under identical scenarios.
+Collected metrics are used to quantitatively compare coordination mechanisms under identical scenarios.
 
-**Metric Coverage** — Metrics tracked include throughput, total distance, battery, conflicts, hard blocks, idle time, and completion delay.
+Metrics tracked include throughput, total distance, battery, conflicts, hard blocks, idle time, and completion delay.
 
 ## Limitations & Notes
-**Constraints** — Known behaviors and model limits:
 - The simulation stops at `max_steps` even if orders remain.
 - Recharge happens in place; robots do not route to charging stations.
 - Collision checks only consider other robots, not shelves.
@@ -171,6 +162,6 @@ python scripts/web/manage.py runserver
 - Dashboard state is stored in memory and resets on server restart.
 
 ## Authors
-**Contributors** — Project authors:
+
 - **EL BATTAH Ahmed**
 - **EL ALAOUI Oumaima**
