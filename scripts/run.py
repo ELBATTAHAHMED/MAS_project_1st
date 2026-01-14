@@ -313,16 +313,16 @@ def run_scenario_analysis():
         },
         {
             "name": "Congestion Test",
-            "robots": 12,
+            "robots": 20,
             "order_mode": "fixed_orders",
-            "order_count": 40,
+            "order_count": 80,
             "order_rate": 0.3,
-            "steps": 200,
-            "grid_size": 12,
+            "steps": 250,
+            "grid_size": 8,
             "failure_step": None,
-            "clustered": False,
-            "cluster_center": None,
-            "cluster_radius": 5
+            "clustered": True,
+            "cluster_center": (3, 3),
+            "cluster_radius": 1
         }
     ]
 

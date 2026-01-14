@@ -1029,6 +1029,15 @@ select.ui-select::-ms-expand {
   border-radius: 0;
 }
 
+.legend-in-transit {
+  width: 0;
+  height: 0;
+  border-left: 7px solid transparent;
+  border-right: 7px solid transparent;
+  border-bottom: 14px solid #16a34a;
+  border-radius: 0;
+}
+
 .metrics-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));

@@ -90,17 +90,17 @@ SCENARIO_PRESETS = {
         "cluster_radius": 5,
     },
     "Congestion Test": {
-        "num_robots": 12,
-        "grid_size": 12,
-        "max_steps": 200,
+        "num_robots": 20,
+        "grid_size": 8,
+        "max_steps": 250,
         "order_mode": "fixed_orders",
-        "order_count": 40,
+        "order_count": 80,
         "order_rate": 0.3,
         "robot_failure_step": None,
-        "clustered_orders": False,
-        "cluster_center_x": 6,
-        "cluster_center_y": 6,
-        "cluster_radius": 3,
+        "clustered_orders": True,
+        "cluster_center_x": 3,
+        "cluster_center_y": 3,
+        "cluster_radius": 1,
     },
     "Custom": {
         "num_robots": 5,
@@ -232,6 +232,7 @@ def get_grid_snapshot(model: WarehouseModel) -> Dict:
                 "pickup": list(order["pickup"]),
                 "delivery": list(order["delivery"]),
                 "assigned": order.get("assigned", False),
+                "picked": order.get("picked", False),
                 "completed": order.get("completed", False),
             }
         )
@@ -327,12 +328,13 @@ def get_robots_snapshot(model: WarehouseModel) -> List[Dict]:
     return rows
 
 
-def get_orders_summary(model: WarehouseModel) -> Tuple[List, List, List]:
+def get_orders_summary(model: WarehouseModel) -> Tuple[List, List, List, List]:
     if not model:
         return [], [], []
 
     pending = []
     assigned = []
+    in_transit = []
     completed = []
 
     for order in model.orders:
@@ -347,12 +349,14 @@ def get_orders_summary(model: WarehouseModel) -> Tuple[List, List, List]:
             order_info["completion_time"] = order.get("completion_time", 0)
             order_info["delay"] = order_info["completion_time"] - order_info["announce_time"]
             completed.append(order_info)
+        elif order.get("picked", False):
+            in_transit.append(order_info)
         elif order.get("assigned", False):
             assigned.append(order_info)
         else:
             pending.append(order_info)
 
-    return pending, assigned, completed
+    return pending, assigned, in_transit, completed
 
 
 def advance_simulation(state: SimulationState) -> None:
@@ -690,7 +694,7 @@ def build_state_payload(state: SimulationState) -> Dict:
     ensure_model(state)
 
     metrics = get_live_metrics(state.model)
-    pending, assigned, completed = get_orders_summary(state.model)
+    pending, assigned, in_transit, completed = get_orders_summary(state.model)
 
     payload = {
         "config": {
@@ -708,6 +712,7 @@ def build_state_payload(state: SimulationState) -> Dict:
         "orders": {
             "pending": pending,
             "assigned": assigned,
+            "in_transit": in_transit,
             "completed": completed,
         },
         "robots": get_robots_snapshot(state.model),

@@ -33,6 +33,7 @@
     robotsTable: document.getElementById("robots-table-body"),
     ordersPending: document.getElementById("orders-pending"),
     ordersAssigned: document.getElementById("orders-assigned"),
+    ordersInTransit: document.getElementById("orders-in-transit"),
     ordersCompleted: document.getElementById("orders-completed"),
     batchTable: document.getElementById("batch-table-body"),
     batchDownloads: document.getElementById("batch-downloads"),
@@ -376,8 +377,9 @@
     const orders = data.orders || {};
     const pending = orders.pending ? orders.pending.length : 0;
     const assigned = orders.assigned ? orders.assigned.length : 0;
+    const inTransit = orders.in_transit ? orders.in_transit.length : 0;
     const completed = orders.completed ? orders.completed.length : 0;
-    elements.statusOrders.textContent = `${pending} pending | ${assigned} assigned | ${completed} completed`;
+    elements.statusOrders.textContent = `${pending} pending | ${assigned} assigned | ${inTransit} in transit | ${completed} completed`;
   }
 
   function formatNumber(value, decimals) {
@@ -389,6 +391,7 @@
     }
     return value;
   }
+
 
   function updateMetric(idValue, idStatus, value, statusClass, statusLabel, decimals) {
     const valueEl = document.getElementById(idValue);
@@ -481,6 +484,7 @@
   function updateOrders(orders) {
     updateOrderList(elements.ordersPending, orders.pending || [], (o) => `#${o.id}: ${o.pickup} -> ${o.delivery}`);
     updateOrderList(elements.ordersAssigned, orders.assigned || [], (o) => `#${o.id}: ${o.pickup} -> ${o.delivery}`);
+    updateOrderList(elements.ordersInTransit, orders.in_transit || [], (o) => `#${o.id}: to ${o.delivery}`);
     updateOrderList(elements.ordersCompleted, orders.completed || [], (o) => `#${o.id}: delay=${o.delay} steps`);
   }
 
@@ -832,16 +836,26 @@
       const delivery = toCanvas(order.delivery);
 
       if (order.assigned) {
-        ctx.fillStyle = "#22c55e";
-        ctx.fillRect(pickup.x + cell * 0.25, pickup.y + cell * 0.25, cell * 0.5, cell * 0.5);
+        if (order.picked) {
+          ctx.fillStyle = "#16a34a";
+          ctx.beginPath();
+          ctx.moveTo(delivery.x + cell * 0.5, delivery.y + cell * 0.15);
+          ctx.lineTo(delivery.x + cell * 0.15, delivery.y + cell * 0.85);
+          ctx.lineTo(delivery.x + cell * 0.85, delivery.y + cell * 0.85);
+          ctx.closePath();
+          ctx.fill();
+        } else {
+          ctx.fillStyle = "#22c55e";
+          ctx.fillRect(pickup.x + cell * 0.25, pickup.y + cell * 0.25, cell * 0.5, cell * 0.5);
 
-        ctx.fillStyle = "#f97316";
-        ctx.beginPath();
-        ctx.moveTo(delivery.x + cell * 0.5, delivery.y + cell * 0.15);
-        ctx.lineTo(delivery.x + cell * 0.15, delivery.y + cell * 0.85);
-        ctx.lineTo(delivery.x + cell * 0.85, delivery.y + cell * 0.85);
-        ctx.closePath();
-        ctx.fill();
+          ctx.fillStyle = "#f97316";
+          ctx.beginPath();
+          ctx.moveTo(delivery.x + cell * 0.5, delivery.y + cell * 0.15);
+          ctx.lineTo(delivery.x + cell * 0.15, delivery.y + cell * 0.85);
+          ctx.lineTo(delivery.x + cell * 0.85, delivery.y + cell * 0.85);
+          ctx.closePath();
+          ctx.fill();
+        }
       } else {
         ctx.strokeStyle = "#3b82f6";
         ctx.lineWidth = 1.5;

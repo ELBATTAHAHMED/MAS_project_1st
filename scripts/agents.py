@@ -106,8 +106,17 @@ class RobotAgent(Agent):
     def assign_task(self, order: Dict):
         """Assign an order to this robot"""
         self.current_task = order
+        self.current_task['picked'] = False
         self.state = "moving_to_pickup"
         self.target = order['pickup']
+
+    def release_current_task(self):
+        """Release the current task back to the pool"""
+        if self.current_task and not self.current_task.get('completed', False):
+            self.current_task['assigned'] = False
+            self.current_task['picked'] = False
+        self.current_task = None
+        self.target = None
     
     def move_towards(self, target: Tuple[int, int]):
         """Move one step towards target with intelligent collision avoidance"""
@@ -120,8 +129,11 @@ class RobotAgent(Agent):
         possible_moves = self.get_smart_moves(target)
         
         next_pos = None
+        is_station_target = target in self.model.station_positions
+
         for candidate in possible_moves:
-            if self.is_position_free(candidate):
+            allow_station = is_station_target and candidate == target
+            if self.is_position_free(candidate, allow_station=allow_station):
                 next_pos = candidate
                 self.blocked_count = 0
                 break
@@ -185,9 +197,11 @@ class RobotAgent(Agent):
         
         return None
     
-    def is_position_free(self, pos: Tuple[int, int]) -> bool:
+    def is_position_free(self, pos: Tuple[int, int], allow_station: bool = False) -> bool:
         """Check if position is free of other robots"""
         if not self.model.grid.out_of_bounds(pos):
+            if allow_station and pos in self.model.station_positions:
+                return True
             cell_contents = self.model.grid.get_cell_list_contents([pos])
             for agent in cell_contents:
                 if isinstance(agent, RobotAgent) and agent != self:
@@ -201,9 +215,8 @@ class RobotAgent(Agent):
             return
         
         if self.battery_level < 20 and self.state != "recharging":
+            self.release_current_task()
             self.state = "recharging"
-            self.current_task = None
-            self.target = None
         
         if self.state == "recharging":
             self.battery_level = min(self.battery_capacity, self.battery_level + 5)
@@ -222,6 +235,8 @@ class RobotAgent(Agent):
         if self.state == "moving_to_pickup":
             self.move_towards(self.target)
             if self.pos == self.target:
+                if self.current_task:
+                    self.current_task['picked'] = True
                 self.state = "moving_to_delivery"
                 self.target = self.current_task['delivery']
         
@@ -262,6 +277,7 @@ class OrderManagerAgent(Agent):
             'pickup': pickup,
             'delivery': delivery,
             'assigned': False,
+            'picked': False,
             'completed': False,
             'announce_time': self.model.step_count
         }

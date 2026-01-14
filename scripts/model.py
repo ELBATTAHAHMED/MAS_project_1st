@@ -188,9 +188,8 @@ class WarehouseModel(Model):
         available_robots = [r for r in self.robot_agents if r.state != "broken"]
         if available_robots:
             robot_to_break = random.choice(available_robots)
+            robot_to_break.release_current_task()
             robot_to_break.state = "broken"
-            robot_to_break.current_task = None
-            robot_to_break.target = None
     
     def step(self):
         """Advance model by one step"""
