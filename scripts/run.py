@@ -6,7 +6,9 @@ Runs experiments comparing coordination mechanisms with multiple scenarios
 from model import WarehouseModel
 import matplotlib.pyplot as plt
 import pandas as pd
-import os
+from pathlib import Path
+
+OUTPUT_DIR = Path(__file__).resolve().parent.parent / "results"
 
 
 def run_single_simulation(
@@ -96,19 +98,21 @@ def run_single_simulation(
 
 def export_to_csv(model_data, agent_data, scenario_name, mechanism):
     """Export model and agent data to CSV files"""
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     safe_scenario = scenario_name.lower().replace(" ", "_")
     
     model_filename = f"model_{safe_scenario}_{mechanism}.csv"
-    model_data.to_csv(model_filename, index=True)
+    model_data.to_csv(OUTPUT_DIR / model_filename, index=True)
     print(f"   💾 Exported: {model_filename}")
     
     agent_filename = f"agent_{safe_scenario}_{mechanism}.csv"
-    agent_data.to_csv(agent_filename, index=True)
+    agent_data.to_csv(OUTPUT_DIR / agent_filename, index=True)
     print(f"   💾 Exported: {agent_filename}")
 
 
 def create_comparison_visualizations(cnp_results, greedy_results, centralized_results=None, scenario_name="Default"):
     """Create comparison visualizations for 2 or 3 mechanisms"""
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     
     num_mechanisms = 3 if centralized_results else 2
     
@@ -219,7 +223,7 @@ def create_comparison_visualizations(cnp_results, greedy_results, centralized_re
     ax.grid(True, alpha=0.3, axis='y')
     
     plt.tight_layout()
-    output_file = os.path.join(os.getcwd(), f'warehouse_{scenario_name.lower().replace(" ", "_")}.png')
+    output_file = OUTPUT_DIR / f'warehouse_{scenario_name.lower().replace(" ", "_")}.png'
     plt.savefig(output_file, dpi=300, bbox_inches='tight')
     print(f"   📊 Visualization saved to: {output_file}")
     plt.close()
@@ -421,7 +425,8 @@ def run_scenario_analysis():
             })
     
     summary_df = pd.DataFrame(summary_data)
-    summary_df.to_csv('summary_scenarios_mechanisms.csv', index=False)
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    summary_df.to_csv(OUTPUT_DIR / "summary_scenarios_mechanisms.csv", index=False)
     print(f"\n   💾 Summary table exported to: summary_scenarios_mechanisms.csv")
     
     print("\n" + "="*60)

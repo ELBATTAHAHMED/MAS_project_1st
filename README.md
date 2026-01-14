@@ -125,9 +125,9 @@ Open `http://127.0.0.1:8000/`.
 
 ## Outputs & Metrics
 - **CLI outputs**:
-  - `model_*.csv` and `agent_*.csv` for each scenario/mechanism.
-  - `summary_scenarios_mechanisms.csv`.
-  - `warehouse_<scenario>.png` charts in the working directory.
+  - `model_*.csv` and `agent_*.csv` for each scenario/mechanism (saved under `results/`).
+  - `summary_scenarios_mechanisms.csv` (saved under `results/`).
+  - `warehouse_<scenario>.png` charts (saved under `results/`).
 - **Dashboard exports**:
   - Metrics JSON.
   - Model/agent CSVs.
@@ -145,4 +145,4 @@ Metrics tracked include throughput, total distance, battery, conflicts, hard blo
 ## Authors
 
 - **EL BATTAH Ahmed**
-- **EL ALOUI Oumaima**
+- **EL ALAOUI Oumaima**
